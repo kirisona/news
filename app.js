@@ -57,9 +57,9 @@ function newsServiceModule() {
   const apiUrl = "https://newsapi.org";
   const apiKey = "d5c22bbbee6c463393c90ec6f4796af2";
   return {
-    topHeadlines(country, cb) {
+    topHeadlines(country, category, cb) {
       http.get(
-        `${apiUrl}/v2/top-headlines?country=${country}&category=technology&apiKey=${apiKey}`,
+        `${apiUrl}/v2/top-headlines?country=${country}&category=${category}&apiKey=${apiKey}`,
         cb
       );
     },
@@ -76,6 +76,7 @@ const newsContainer = document.querySelector(".news-container .row");
 const form = document.forms["newsControls"];
 const countrySelect = form["country"];
 const searchInput = form["search"];
+const categorySelect = form["category"];
 
 //  init selects
 document.addEventListener("DOMContentLoaded", function() {
@@ -90,7 +91,7 @@ form.addEventListener("submit", e => {
   if (searchInput.value) {
     newsService.everything(searchInput.value, onGetResponse);
   } else {
-    newsService.topHeadlines(countrySelect.value, onGetResponse);
+    newsService.topHeadlines(countrySelect.value, categorySelect.value, onGetResponse);
   }
 });
 // 1
@@ -108,7 +109,7 @@ function onGetResponse(err, response) {
   }
 
   if (!response.articles.length) {
-    M.toast({ html: 'Новости по вашему запросу не найдены' });
+    M.toast({ html: "Новости по вашему запросу не найдены" });
     return;
   }
 
@@ -161,22 +162,22 @@ function newsTemplate({ title, urlToImage, url, description }) {
  * 3. при каждой загрузке новостей показывать прелоадер и скрывать когда новости будут получены
  */
 
- function showLoader() {
+function showLoader() {
   const template = `
   <div class="progress">
       <div class="indeterminate"></div>
   </div>
   `;
 
-  document.body.insertAdjacentHTML('afterbegin', template);
- }
+  document.body.insertAdjacentHTML("afterbegin", template);
+}
 
- function hideLoader() {
-  const loader = document.querySelector('.progress');
+function hideLoader() {
+  const loader = document.querySelector(".progress");
   if (loader) {
     loader.remove();
   }
- }
+}
 
 // key = d5c22bbbee6c463393c90ec6f4796af2  api news
 
