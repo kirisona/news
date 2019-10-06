@@ -65,7 +65,11 @@ function newsServiceModule() {
     },
 
     everything(text, cb) {
-      http.get(`${apiUrl}/v2/everything?q=${text}&apiKey=${apiKey}`, cb);
+      http.get(`${apiUrl}/v2/everything?q=${text}&sources=${sources.value}&apiKey=${apiKey}`, cb);
+    },
+
+    source(cb) {
+      http.get(`${apiUrl}/v2/sources?&language=en&apiKey=${apiKey}`, cb)
     }
   };
 }
@@ -77,12 +81,27 @@ const form = document.forms["newsControls"];
 const countrySelect = form["country"];
 const searchInput = form["search"];
 const categorySelect = form["category"];
+const sources = document.querySelector('#sources');
+
+function createSourceOptions(err, response) {
+  const sourceArray = response.sources;
+
+  for (let i = 0; i <= 15; i++) {
+    const newSourceOption = `
+    <option value=${sourceArray[i].id}>${sourceArray[i].name}</option>
+    `;
+
+    sources.insertAdjacentHTML('beforeend', newSourceOption);
+    M.FormSelect.init(sources, newSourceOption);
+  }
+}
 
 //  init selects
 document.addEventListener("DOMContentLoaded", function() {
   M.AutoInit();
   showLoader();
   loadNews();
+  newsService.source(createSourceOptions);
 });
 
 form.addEventListener("submit", e => {
@@ -97,7 +116,7 @@ form.addEventListener("submit", e => {
 // 1
 
 function loadNews() {
-  newsService.topHeadlines(countrySelect.value, onGetResponse);
+  newsService.topHeadlines(countrySelect.value, categorySelect.value, onGetResponse);
 }
 
 function onGetResponse(err, response) {
